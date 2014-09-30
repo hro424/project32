@@ -2,27 +2,27 @@
 `include "op_def.v"
 
 module ALU (
-	input	`OPCODE	com,
-	input	`WORD	a,
-	input	`WORD	b,
-	output	`WORD	y
+	input	`ALU_OPCODE	com,
+	input	`WORD		in0,
+	input	`WORD		in1,
+	output	`WORD		out
 );
 
-assign y = alu(com, a, b);
+assign out = alu(com, in0, in1);
 
 function `WORD alu;
-	input	`OPCODE	com;
-	input	`WORD	a, b;
+	input	`ALU_OPCODE	com;
+	input	`WORD		a, b;
 
 	case (com)
-		`OP_NOP: alu = a;
-		`OP_MOV_REG_REG: alu = b;
-		`OP_ADD_REG: alu = a + b;
-		`OP_SUB_REG: alu = a - b;
-		`OP_MUL_REG: alu = a * b;
-		`OP_AND_REG: alu = a & b;
-		`OP_ORR_REG: alu = a | b;
-		`OP_XOR_REG: alu = a ^ b;
+		`ALU_OP_THA: alu = a;
+		`ALU_OP_THB: alu = b;
+		`ALU_OP_ADD: alu = a + b;
+		`ALU_OP_SUB: alu = a - b;
+		`ALU_OP_MUL: alu = a * b;
+		`ALU_OP_AND: alu = a & b;
+		`ALU_OP_ORR: alu = a | b;
+		`ALU_OP_XOR: alu = a ^ b;
 		default: alu = `WORD_SIZE'hx;
 	endcase
 endfunction

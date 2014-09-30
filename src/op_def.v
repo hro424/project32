@@ -3,6 +3,16 @@
 
 `include "config.v"
 
+`define ALU_OP_THA		(`ALU_OP_SIZE'h0)
+`define ALU_OP_THB		(`ALU_OP_SIZE'h1)
+`define ALU_OP_ADD		(`ALU_OP_SIZE'h2)
+`define ALU_OP_SUB		(`ALU_OP_SIZE'h3)
+`define ALU_OP_MUL		(`ALU_OP_SIZE'h4)
+`define ALU_OP_DIV		(`ALU_OP_SIZE'h5)
+`define ALU_OP_AND		(`ALU_OP_SIZE'h6)
+`define ALU_OP_ORR		(`ALU_OP_SIZE'h7)
+`define ALU_OP_XOR		(`ALU_OP_SIZE'h8)
+
 // system operations
 `define OP_NOP			(`OPCODE_SIZE'h0)
 
