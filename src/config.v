@@ -12,9 +12,9 @@
 `define WORD_SIZE		32
 `define WORD_MSB		(`WORD_SIZE - 1)
 `define WORD			[`WORD_MSB:0]
-`define OPCODE_SIZE		`HALF_SIZE
-`define OPCODE_MSB		(`OPCODE_SIZE - 1)
-`define OPCODE			[`OPCODE_MSB:0]
+`define ALU_OPCODE_SIZE		4
+`define ALU_OPCODE_MSB		(`ALU_OPCODE_SIZE - 1)
+`define ALU_OPCODE		[`ALU_OPCODE_MSB:0]
 
 `define HI_Z			(`WORD_SIZE'hz)
 `define UNDEF			(`WORD_SIZE'hx)

@@ -32,7 +32,7 @@ float = inst[19];
 sel_src = inst[18];
 sel_dst = inst[17:16];
 imm = inst[15:0];
-we = (dst_sel == 0x2) && (&opcode[1:0])
+we = (sel_dst == 2b'10) && (&opcode[1:0])
 
 0000 
 0001

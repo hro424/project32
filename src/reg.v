@@ -4,21 +4,19 @@
 module RegisterFile(
 	input			clk,
 	input			rst,
-	input			wen_a,
-	input	`REGADDR	addr_a,
-	input	`WORD		din_a,
-	output	`WORD		dout_a,
-	input			wen_b,
-	input	`REGADDR	addr_b,
-	input	`WORD		din_b,
-	output	`WORD		dout_b
+	input	`REGADDR	addr0,
+	input	`WORD		din0,
+	output	`WORD		dout0,
+	input	`REGADDR	addr1,
+	input	`WORD		din1,
+	output	`WORD		dout1
 );
 
 reg	`WORD	mem[0:`REGADDR_MSB];
 integer i;
 
-assign dout_a = mem[addr_a];
-assign dout_b = mem[addr_b];
+assign dout0 = mem[addr0];
+assign dout1 = mem[addr1];
 
 always @(posedge clk, posedge rst) begin
 	if (rst) begin
@@ -27,15 +25,14 @@ always @(posedge clk, posedge rst) begin
 		end
 	end
 	else begin
-		if (wen_a) begin
-			mem[addr_a] <= din_a;
+		if (din0 != 'hx) begin
+			mem[addr0] <= din0;
 		end
 
-		if (wen_b) begin
-			mem[addr_b] <= din_b;
+		if (din1 != 'hx) begin
+			mem[addr1] <= din1;
 		end
 	end
 end
-
 
 endmodule

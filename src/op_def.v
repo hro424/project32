@@ -3,16 +3,17 @@
 
 `include "config.v"
 
-`define ALU_OP_THA		(`ALU_OP_SIZE'h0)
-`define ALU_OP_THB		(`ALU_OP_SIZE'h1)
-`define ALU_OP_ADD		(`ALU_OP_SIZE'h2)
-`define ALU_OP_SUB		(`ALU_OP_SIZE'h3)
-`define ALU_OP_MUL		(`ALU_OP_SIZE'h4)
-`define ALU_OP_DIV		(`ALU_OP_SIZE'h5)
-`define ALU_OP_AND		(`ALU_OP_SIZE'h6)
-`define ALU_OP_ORR		(`ALU_OP_SIZE'h7)
-`define ALU_OP_XOR		(`ALU_OP_SIZE'h8)
+`define ALU_OP_THA		(`ALU_OPCODE_SIZE'h0)
+`define ALU_OP_THB		(`ALU_OPCODE_SIZE'h1)
+`define ALU_OP_ADD		(`ALU_OPCODE_SIZE'h2)
+`define ALU_OP_SUB		(`ALU_OPCODE_SIZE'h3)
+`define ALU_OP_MUL		(`ALU_OPCODE_SIZE'h4)
+`define ALU_OP_DIV		(`ALU_OPCODE_SIZE'h5)
+`define ALU_OP_AND		(`ALU_OPCODE_SIZE'h6)
+`define ALU_OP_ORR		(`ALU_OPCODE_SIZE'h7)
+`define ALU_OP_XOR		(`ALU_OPCODE_SIZE'h8)
 
+/*
 // system operations
 `define OP_NOP			(`OPCODE_SIZE'h0)
 
@@ -64,5 +65,6 @@
 `define OP_JMP			(`OPCODE_SIZE'h59)
 `define OP_JSR			(`OPCODE_SIZE'h5a)
 `define OP_RET			(`OPCODE_SIZE'h5b)
+*/
 
 `endif // OP_DEF_H
