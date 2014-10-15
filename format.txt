@@ -62,7 +62,7 @@ we = (sel_dst == 2b'10) && (&opcode[1:0])
 
 b, beq, bne, bge, ble, bgt, blt
 
-### arigh, logic, shift(32 instructions)
+### arith, logic, shift(32 instructions)
     +-------+-------+-------+-------+-
     | opc   | rd(4) | rs(4) |  fn   |
     +-------+-------+-------+-------+-
@@ -83,4 +83,61 @@ add32, add16, add8, sub32 sub16, sub8, mul32, mul16, mul8, div32, mod32
 
 mov32, mov16, mov8
 
+Instructions
+------------
+
+### Transfer instructions
+    mov rd, rs		rd = rs;		0001 0001
+    mov rd, @rs + imm	rd = mem[rs + imm];	0001 0001
+    mov @rd + imm, rs	mem[rd + imm] = rs;	0001 0010
+    mov rd, imm		rd = imm;
+
+### Arithmetic instructions
+    add rd, rs		rd = rd + rs;		0010 0000
+    add rd, imm		rd = rd + imm;		0010 0100
+    sub rd, rs		rd = rd - rs;		0010 0001
+    sub rd, imm		rd = rd - imm;		0010 0101
+    mul rd, rs		rd = rd * rs;		0010 0010
+    mul rd, imm		rd = rd * imm;		0010 0110
+    div rd, rs		rd = rd / rs;		0010 0011
+    div rd, imm		rd = rd / imm;		0010 0111
+    mod rd, rd		rd = rd % rs;		0011 0000
+    mod rd, imm		rd = rd % rs;		0011 0100
+
+### Logical instructions
+    and rd, rs		rd = rd & rs;		0011 0001
+    and rd, imm		rd = rd & imm;		0011 0101
+    orr rd, rs		rd = rd | rs;		0011 0010
+    orr rd, imm		rd = rd | imm;		0011 0110
+    xor rd, rs		rd = rd ^ rs;		0011 0011
+    xor rd, imm		rd = rd ^ imm;
+    not rd		rd = ~rd;
+
+### Shift instructions
+    shl rd, rs		rd = rd << rs;
+    shr rd, rs		rd = rd >> rs;
+    sar rd, rs		rd = rd >> rs;
+    rol rd, rs		rd = (rd << rs) | (rd >> (32 - rs));
+    ror rd, rs		rd = (rd >> rs) | (rd << (32 - rs));
+
+### Test instructions
+    cmp rd, rs		if (rd == rs) z = 1;
+			else if (rd > rs) c = 1;
+    cmp rd, imm		if (rd == imm) z = 1;
+			else if (rd > rs) c = 1;
+    tst rd, rs
+    tst rd, imm
+
+### Branch instructions
+    jmp rd		pc = rd;
+    jmp imm		pc = pc + imm;
+    beq rd		if (z == 1) pc = rd;
+    bne rd		if (z == 0) pc = rd;
+    bge rd		if (z == 1 || c == 1) pc = rd;
+    ble rd		if (z == 1 || s == 1) pc = rd;
+    bgt rd		if (z == 0 || c == 1) pc = rd;
+    blt rd		if (z == 0 || s == 1) pc = rd;
+
+### System instructions
+    nop
 
