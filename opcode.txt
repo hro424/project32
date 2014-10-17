@@ -1,0 +1,73 @@
+
+### Transfer instructions
+
+#op   fn   rd   rs  imm
+0000 0001 dddd ssss	#	mov rd, rs		rd = rs;
+0000 0001 dddd ssss	#	mov rd, @rs		rd = mem[rs];
+0000 0001 dddd ssss	#	mov @rd, rs		mem[rd] = rs;
+0001 0001 dddd 0000 imm #	mov rd, imm		rd = imm;
+0000 0001 dddd ssss imm	#	mov rd, @(rs + imm)	rd = mem[rs + imm];
+0000 0010 dddd ssss imm #	mov @(rd + imm), rs	mem[rd + imm] = rs;
+
+
+### Branch instructions
+
+0000 x000 dddd 0000	#	jmp rd		pc = rd;
+0001 0100 xxxx 0000 imm	#	jmp imm		pc = pc + imm;
+0000 x000 dddd 0000	#	beq rd		if (z == 1) pc = rd;
+0000 x000 dddd 0000	#	bne rd		if (z == 0) pc = rd;
+0000 x000 dddd 0000	#	bge rd		if (z == 1 && c == 1) pc = rd;
+0000 x000 dddd 0000	#	ble rd		if (z == 1 && s == 1) pc = rd;
+0000 x000 dddd 0000	#	bgt rd		if (z == 0 && c == 1) pc = rd;
+0000 x000 dddd 0000	#	blt rd		if (z == 0 && s == 1) pc = rd;
+
+
+### Arithmetic instructions (F,I)
+
+#op   op   rd   rs
+0010 0000 dddd ssss	#	add rd, rs	rd = rd + rs;
+0010 0001 dddd ssss	#	sub rd, rs	rd = rd - rs;
+0010 0010 dddd ssss	#	mul rd, rs	rd = rd * rs;
+0010 0011 dddd ssss	#	div rd, rs	rd = rd / rs;
+0010 0100 dddd ssss	#	mod rd, rs	rd = rd % rs;
+
+#op   op   rd   op
+0011 0000 dddd 0000 imm	#	add rd, imm	rd = rd + imm;
+0011 0001 dddd 0000 imm	#	sub rd, imm	rd = rd - imm;
+0011 0010 dddd 0000 imm	#	mul rd, imm	rd = rd * imm;
+0011 0011 dddd 0000 imm	#	div rd, imm	rd = rd / imm;
+0011 0100 dddd 0000 imm	#	mod rd, imm	rd = rd % imm;
+
+
+### Logical instructions (I)
+
+0010 0101 dddd ssss	#	and rd, rs	rd = rd & rs;
+0010 0110 dddd ssss	#	orr rd, rs	rd = rd | rs;
+0010 0111 dddd ssss	#	xor rd, rs	rd = rd ^ rs;
+
+0011 0101 dddd 0000 imm	#	and rd, imm	rd = rd & imm;
+0011 0110 dddd 0000 imm	#	orr rd, imm	rd = rd | imm;
+0011 0111 dddd 0000 imm	#	xor rd, imm	rd = rd ^ imm;
+
+0011 0101 dddd 0001	#	not rd		rd = ~rd;
+
+
+### Shift instructions
+
+0100 0000 dddd ssss	#	shl rd, rs	rd = rd << rs;
+0100 0001 dddd ssss	#	shr rd, rs	rd = rd >> rs;
+0100 0010 dddd ssss	#	sar rd, rs	rd = rd >> rs;
+0100 0011 dddd ssss	#	rol rd, rs	rd = (rd << rs) | (rd >> (32 - rs));
+0100 0100 dddd ssss	#	ror rd, rs	rd = (rd >> rs) | (rd << (32 - rs)); 
+
+0101 0000 dddd 0000	#	shl rd, imm	rd = rd << imm;
+0101 0001 dddd 0000	#	shr rd, imm	rd = rd >> imm;
+0101 0010 dddd 0000	#	sar rd, imm	rd = rd >> imm;
+0101 0011 dddd 0000	#	rol rd, imm	rd = (rd << imm) | (rd >> (32 - imm));
+0101 0100 dddd 0000	#	ror rd, imm	rd = (rd >> imm) | (rd << (32 - imm)); 
+
+
+### System instructions
+
+1111 0000 0000 0000		nop
+1111

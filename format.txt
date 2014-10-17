@@ -86,32 +86,60 @@ mov32, mov16, mov8
 Instructions
 ------------
 
+rf.dst <= b
+
+if (a == mov) {
+  alu.com <= a;
+  selector <= d;
+}
+else if ( a == arith | logic | shift) {
+  if (imm) {
+    alu.com <= a + c;
+  }
+  else {
+    alu.com <= a + d[2:3];
+    rf.src <= c;
+  }
+}
+
+						a    b    c    d
 ### Transfer instructions
-    mov rd, rs		rd = rs;		0001 0001
-    mov rd, @rs + imm	rd = mem[rs + imm];	0001 0001
-    mov @rd + imm, rs	mem[rd + imm] = rs;	0001 0010
-    mov rd, imm		rd = imm;
+    mov rd, rs		rd = rs;		0000 dddd ssss 0001
+    mov rd, @rs + imm	rd = mem[rs + imm];	0000 dddd ssss 0001 imm
+    mov @rd + imm, rs	mem[rd + imm] = rs;	0000 dddd ssss 0010 imm
+    mov rd, imm		rd = imm;		0001 dddd 0000 0001 imm
+
+### Branch instructions
+    jmp rd		pc = rd;		0001 dddd 0001 x000
+    jmp imm		pc = pc + imm;		0000 xxxx 0000 x100 imm
+    beq rd		if (z == 1) pc = rd;	0001 dddd 0010 x000
+    bne rd		if (z == 0) pc = rd;	0001 dddd 0011 x000
+    bge rd		if (z == 1 || c == 1) pc = rd;	0001 dddd 0100 x000
+    ble rd		if (z == 1 || s == 1) pc = rd;	0001 dddd 0101 x000
+    bgt rd		if (z == 0 || c == 1) pc = rd;	0001 dddd 0110 x000
+    blt rd		if (z == 0 || s == 1) pc = rd;	0001 dddd 0111 x000
 
 ### Arithmetic instructions
-    add rd, rs		rd = rd + rs;		0010 0000
-    add rd, imm		rd = rd + imm;		0010 0100
-    sub rd, rs		rd = rd - rs;		0010 0001
-    sub rd, imm		rd = rd - imm;		0010 0101
-    mul rd, rs		rd = rd * rs;		0010 0010
-    mul rd, imm		rd = rd * imm;		0010 0110
-    div rd, rs		rd = rd / rs;		0010 0011
-    div rd, imm		rd = rd / imm;		0010 0111
-    mod rd, rd		rd = rd % rs;		0011 0000
-    mod rd, imm		rd = rd % rs;		0011 0100
+    add rd, rs		rd = rd + rs;		0010 dddd ssss 0000
+    sub rd, rs		rd = rd - rs;		0010 dddd ssss 0001
+    mul rd, rs		rd = rd * rs;		0010 dddd ssss 0010
+    div rd, rs		rd = rd / rs;		0010 dddd ssss 0011
+    mod rd, rd		rd = rd % rs;		0011 dddd ssss 0000
+
+    sub rd, imm		rd = rd - imm;		0010 dddd 0000 0101
+    add rd, imm		rd = rd + imm;		0010 dddd 0001 0101
+    mul rd, imm		rd = rd * imm;		0010 dddd 0010 0101
+    div rd, imm		rd = rd / imm;		0010 dddd 0011 0101
+    mod rd, imm		rd = rd % rs;		0010 dddd 0100 0101
 
 ### Logical instructions
-    and rd, rs		rd = rd & rs;		0011 0001
-    and rd, imm		rd = rd & imm;		0011 0101
-    orr rd, rs		rd = rd | rs;		0011 0010
-    orr rd, imm		rd = rd | imm;		0011 0110
-    xor rd, rs		rd = rd ^ rs;		0011 0011
-    xor rd, imm		rd = rd ^ imm;
-    not rd		rd = ~rd;
+    and rd, rs		rd = rd & rs;		0011 dddd ssss 0001
+    orr rd, rs		rd = rd | rs;		0011 dddd ssss 0010
+    xor rd, rs		rd = rd ^ rs;		0011 dddd ssss 0011
+    and rd, imm		rd = rd & imm;		0010 dddd 0101 0101
+    orr rd, imm		rd = rd | imm;		0010 dddd 0110 0101
+    xor rd, imm		rd = rd ^ imm;		0010 dddd 0111 0101
+    not rd		rd = ~rd;		0011 dddd 0000 0100
 
 ### Shift instructions
     shl rd, rs		rd = rd << rs;
@@ -119,6 +147,11 @@ Instructions
     sar rd, rs		rd = rd >> rs;
     rol rd, rs		rd = (rd << rs) | (rd >> (32 - rs));
     ror rd, rs		rd = (rd >> rs) | (rd << (32 - rs));
+    shl rd, imm		rd = rd << imm;		0010 dddd 1000 0101
+    shr rd, imm		rd = rd >> imm;		0010 dddd 1001 0101
+    sar rd, imm		rd = rd >> imm;		0010 dddd 1010 0101
+    rol rd, imm		rd = (rd << imm) | (rd >> (32 - imm));
+    ror rd, imm		rd = (rd >> imm) | (rd << (32 - imm));
 
 ### Test instructions
     cmp rd, rs		if (rd == rs) z = 1;
@@ -128,16 +161,6 @@ Instructions
     tst rd, rs
     tst rd, imm
 
-### Branch instructions
-    jmp rd		pc = rd;
-    jmp imm		pc = pc + imm;
-    beq rd		if (z == 1) pc = rd;
-    bne rd		if (z == 0) pc = rd;
-    bge rd		if (z == 1 || c == 1) pc = rd;
-    ble rd		if (z == 1 || s == 1) pc = rd;
-    bgt rd		if (z == 0 || c == 1) pc = rd;
-    blt rd		if (z == 0 || s == 1) pc = rd;
-
 ### System instructions
-    nop
-
+    nop						0000 xxxx 0000 0000
+    int rd
