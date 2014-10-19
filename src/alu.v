@@ -15,8 +15,8 @@ function `WORD alu;
 	input	`WORD		a, b;
 
 	case (com)
-		`ALU_OP_THA: alu = a;
-		`ALU_OP_THB: alu = b;
+		`ALU_OP_THA_WORD: alu = a;
+		`ALU_OP_THB_WORD: alu = b;
 		`ALU_OP_ADD: alu = a + b;
 		`ALU_OP_SUB: alu = a - b;
 		`ALU_OP_MUL: alu = a * b;
