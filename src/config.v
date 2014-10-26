@@ -12,7 +12,7 @@
 `define WORD_SIZE		32
 `define WORD_MSB		(`WORD_SIZE - 1)
 `define WORD			[`WORD_MSB:0]
-`define ALU_OPCODE_SIZE		4
+`define ALU_OPCODE_SIZE		8
 `define ALU_OPCODE_MSB		(`ALU_OPCODE_SIZE - 1)
 `define ALU_OPCODE		[`ALU_OPCODE_MSB:0]
 
