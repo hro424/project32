@@ -8,3 +8,6 @@ mov r0,r1	# comment
 #comment	
 	# comment
 
+jmp label4
+#label4:	mov r0 , r2 #comment
+label#1:
