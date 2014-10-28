@@ -1,13 +1,13 @@
-label1:
-  label2 :  
-	label3	:
-mov r0, r1
-label4:	mov r0 , r2
-	mov	r1, r2
-mov r0,r1	# comment
-#comment	
-	# comment
+# This program calculates Fibonacci number.
 
-jmp label4
-#label4:	mov r0 , r2 #comment
-label#1:
+	mov	r0, 1
+	mov	r1, 0x1
+	mov	r2, 10		# max
+loop:
+	beq	out		# branch if under-carry
+	add	r0, r1
+	swap	r0, r1
+	sub	r2, 1
+	jmp	loop
+out:
+	jmp	out

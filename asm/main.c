@@ -16,21 +16,54 @@ remove_comment(char *buf)
 }
 
 void
-parse(char *line)
+add_label(const char *begin, const char *end)
 {
-	char *ptr;
 
-	for (ptr = line; isspace(*ptr); ++ptr) ;
+}
 
-	for (;*ptr != '\0'; ++ptr) {
-		if (isspace(*ptr)) {
+void
+process(const char *str, int *state)
+{
+	switch (*state) {
+	case STATE_INITIAL:
+		break;
+	case STATE_LABEL:
+		break;
+	case STATE_OPCODE:
+		break;
+	case STATE_OPERAND:
+		break;
+	}
+}
+
+void
+lex(char *line)
+{
+	static char *sep = ",: \t";
+	char *word, *last;
+	int state;
+
+	for (word = strtok_r(line, sep, &last);
+	     word;
+	     word = strtok_r(NULL, sep, &last)) {
+		process(word, &state);
+	}
+
+	save = line;
+	for (const char *cur = line; cur != '\0'; ++cur) {
+		if (isspace(*cur)) {
+			++save;
 			continue;
 		}
-		else if (*ptr == ':') {
+		else if (*cur == ':') {
+			parse_label(save, cur);
 		}
-		else if (*ptr == ',') {
-		}
+		else if (*cur == 
 	}
+
+	label = strtok_r(line, ":", &last);
+	inst = strtok_r(NULL, ":", &last);
+	parse_label(label);
 }
 
 int

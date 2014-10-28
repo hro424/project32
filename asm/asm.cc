@@ -4,6 +4,70 @@
 #include <regex>
 #include <string>
 
+namespace {
+struct Translator
+{
+    virtual uint32_t encode(std::string& opr1, std::string& opr2) = 0;
+};
+
+struct MovTranslator : public Translator
+{
+    virtual uint32_t encode(std::string& opr1, std::string& opr2);
+};
+
+struct JmpTranslator : public Translator
+{
+    virtual uint32_t encode(std::string& opr1, std::string& opr2);
+};
+
+struct CmpTranslator : public Translator
+{
+    virtual uint32_t encode(std::string& opr1, std::string& opr2);
+};
+
+struct AddTranslator : public Translator
+{
+    virtual uint32_t encode(std::string& opr1, std::string& opr2);
+};
+
+uint32_t
+ArithTranslator::encode(std::string& op, std::string& opr1 std::string& opr2)
+{
+	if (opr1.length() == 0 || opr2.length() == 0) {
+		// syntax error
+	}
+
+	if (opr2.isnumber()) {
+		code = ((0x8500 | op) << 16) | (opr1.reg() << 20) | (opr2.number() & 0xFFFF);
+	}
+	else {
+		code = (0x8100 << 16) | (opr1.reg() << 20) | (opr2.reg() << 16) | op << 12;
+	}
+}
+
+struct SubTranslator : public Translator
+{
+    virtual uint32_t encode(std::string& opr1, std::string& opr2);
+};
+
+struct BranchTranslator : public Translator
+{
+    virtual uint32_t encode(std::string& opr1, std::string& opr2);
+};
+
+struct SwapTranslator : public Translator
+{
+    virtual uint32_t encode(std::string& opr1, std::string& opr2);
+};
+
+std::map<std::string, uint32_t> symbols;
+std::map<std::string, Translator> translator;
+
+int
+translate(std::string& opc, std::string& opr1, std::string& opr2)
+{
+    translator[opc].encode(opr1, opr2);
+}
 
 int
 main(int argc, char *argv[])
@@ -12,7 +76,6 @@ main(int argc, char *argv[])
     std::string line;
     std::regex re("^[ \\t]*(?:([\\w\\.]+)[ \\t]*:)?[ \\t]*(?:(\\w+)[ \\t]+(@?\\w+)[ \\t]*(?:,[ \\t]*(@?\\w+))?)?.*");
     std::cmatch cm;
-    std::map<std::string, uint32_t> symbols;
     uint32_t offset = 0;
 
     while (getline(ifs, line)) {
@@ -34,6 +97,7 @@ main(int argc, char *argv[])
         }
     }
 
+    std::cout << "symbols:" << std::endl;
     for (auto i : symbols) {
         std::cout << i.first << " " << i.second << std::endl;
     }
