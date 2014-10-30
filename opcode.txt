@@ -211,25 +211,25 @@
 
 ### Shift instructions
 
-1000 0000 dddd ssss 1100	# shl rd, rs	rd = rd << rs;
+1100 0001 dddd ssss 0000	# shl rd, rs	rd = rd << rs;
 	ALUOP: SHL
 
-1000 0001 dddd ssss 1101	# shr rd, rs	rd = rd >> rs;
+1100 0001 dddd ssss 0001	# shr rd, rs	rd = rd >> rs;
 	ALUOP: SHR
 
-1000 0010 dddd ssss 1110	# sar rd, rs	rd = rd >> rs;
+1100 0000 dddd ssss 0010	# sar rd, rs	rd = rd >> rs;
 	ALUOP: EXT + SHR
 
-1000 0011 dddd ssss 1111	# rol rd, rs	rd = (rd << rs) | (rd >> (32 - rs));
+1100 0001 dddd ssss 0011	# rol rd, rs	rd = (rd << rs) | (rd >> (32 - rs));
 	ALUOP: ROL
 
-1100 0100 dddd ssss 0000	# ror rd, rs	rd = (rd >> rs) | (rd << (32 - rs)); 
+1100 0000 dddd ssss 0100	# ror rd, rs	rd = (rd >> rs) | (rd << (32 - rs)); 
 	ALUOP: ROR
 
-1000 0101 dddd 1100 iiiiiiii	# shl rd, imm	rd = rd << imm;
-1000 0101 dddd 1101 iiiiiiii	# shr rd, imm	rd = rd >> imm;
-1000 0101 dddd 1110 iiiiiiii	# sar rd, imm	rd = rd >> imm;
-1000 0101 dddd 1111 iiiiiiii	# rol rd, imm	rd = (rd << imm) | (rd >> (32 - imm));
+1100 0101 dddd 0000 iiiiiiii	# shl rd, imm	rd = rd << imm;
+1100 0101 dddd 0001 iiiiiiii	# shr rd, imm	rd = rd >> imm;
+1100 0101 dddd 0010 iiiiiiii	# sar rd, imm	rd = rd >> imm;
+1100 0101 dddd 0011 iiiiiiii	# rol rd, imm	rd = (rd << imm) | (rd >> (32 - imm));
 1100 0101 dddd 0000	#	ror rd, imm	rd = (rd >> imm) | (rd << (32 - imm)); 
 
 
