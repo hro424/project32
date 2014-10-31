@@ -56,7 +56,7 @@
 0011 0001 0000 0000	#	mov.h @rd, rs
 	ALUOP: THRU A
 
-0110 0001 0000 0000	#	swap rd, rs
+0110 0001 0000 0000	#	swp rd, rs
 	ALUOP: SWAP
 	alu_out -> (val) -> rd
 	alu_out -> (val) -> rs
@@ -65,10 +65,10 @@
 	sel_dst <- ("reg")
 	sel_src <- ("reg")
 
-1000 0001 0000 0000	#	swap.b rd, rs
+1000 0001 0000 0000	#	swp.b rd, rs
 	ALUOP: SWAP
 
-0111 0000 0000 0000	#	swap.h rd, rs
+0111 0000 0000 0000	#	swp.h rd, rs
 	ALUOP: SWAP
 
 
@@ -82,35 +82,36 @@
 
 0000 0100 xxxx 0000 imm	#	jmp imm		pc = pc + imm;
 
-0000 x000 dddd 1001	#	beq rd		if (z == 1) pc = rd;
+0000 x000 dddd 1000	#	beq rd		if (z == 1) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr, flag.z) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0000 x000 dddd 1000	#	bne rd		if (z == 0) pc = rd;
+0000 x000 dddd 1001	#	bne rd		if (z == 0) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0000 x000 dddd 1011	#	bge rd		if (z == 1 && c == 1) pc = rd;
+0000 x000 dddd 1010	#	bge rd		if (z == 1 && c == 1) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0000 x000 dddd 1101	#	ble rd		if (z == 1 && s == 1) pc = rd;
+0000 x000 dddd 1011	#	ble rd		if (z == 1 && s == 1) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0000 x000 dddd 1010	#	bgt rd		if (z == 0 && c == 1) pc = rd;
+0000 x000 dddd 1100	#	bgt rd		if (z == 0 && c == 1) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0000 x000 dddd 1100	#	blt rd		if (z == 0 && s == 1) pc = rd;
+0000 x000 dddd 1101	#	blt rd		if (z == 0 && s == 1) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
+
 
 ### Arithmetic instructions (F,I)
 
