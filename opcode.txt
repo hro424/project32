@@ -2,7 +2,7 @@
 ### Transfer instructions
 
 #op   fn   rd   rs  imm
-0001 0001 dddd ssss 0000	# mov rd, rs		rd = rs;
+1000 0001 dddd ssss 0000	# mov rd, rs		rd = rs;
 	ALUOP: THRU B
 	alu_out -> (val) -> reg_in0
 	alu_in0 <- (x) <- reg_out0
@@ -10,6 +10,7 @@
 	sel_dst <- ("reg")
 	sel_src <- ("reg")
 
+//TODO
 0001 0010 dddd ssss 0000	# mov rd, @rs		rd = mem[rs];
 	ALUOP: THRU B
 	alu_out -> (addr) -> mem
@@ -19,6 +20,7 @@
 	sel_src <- ("reg")
 	reg_in1 <- (val) <- mem
 
+//TODO
 0000 0010 dddd ssss 		# mov @rd, rs		mem[rd] = rs;
 	ALUOP: THRU A
 	alu_out -> (addr, we) -> mem
@@ -28,7 +30,7 @@
 	sel_src <- ("reg")
 	reg_out1 -> ("val") -> mem
 
-0001 0101 dddd 0000 imm 	# mov rd, imm		rd = imm;
+1000 0101 dddd 0000 imm 	# mov rd, imm		rd = imm;
 	ALUOP: THRU B
 	alu_out -> (val) -> rd
 	alu_in0 <- x
@@ -36,9 +38,11 @@
 	sel_dst <- ("reg")
 	sel_src <- ("imm")
 
+//TODO
 0000 0101 dddd ssss imm	#	mov rd, @(rs + imm)	rd = mem[rs + imm];
 	TODO
 
+//TODO
 0000 0110 dddd ssss imm #	mov @(rd + imm), rs	mem[rd + imm] = rs;
 	TODO
 	ALUOP: THRU A
@@ -56,7 +60,7 @@
 0011 0001 0000 0000	#	mov.h @rd, rs
 	ALUOP: THRU A
 
-0110 0001 0000 0000	#	swp rd, rs
+1000 0001 dddd ssss 0001	#	swp rd, rs
 	ALUOP: SWAP
 	alu_out -> (val) -> rd
 	alu_out -> (val) -> rs
@@ -65,9 +69,11 @@
 	sel_dst <- ("reg")
 	sel_src <- ("reg")
 
-1000 0001 0000 0000	#	swp.b rd, rs
+//TODO
+1000 0001 dddd ssss 0001	#	swp.b rd, rs
 	ALUOP: SWAP
 
+//TODO
 0111 0000 0000 0000	#	swp.h rd, rs
 	ALUOP: SWAP
 
@@ -75,139 +81,152 @@
 ### Branch instructions
 
 #op  fisl  rd  ctrl  imm
-0000 x000 dddd 0000	#	jmp rd		pc = rd;
+
+0100 x000 dddd 0000	#	jmp rd		pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr, we) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
+//TODO
 0000 0100 xxxx 0000 imm	#	jmp imm		pc = pc + imm;
 
-0000 x000 dddd 1000	#	beq rd		if (z == 1) pc = rd;
+
+0100 x000 dddd 0001	#	beq rd		if (z == 1) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr, flag.z) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0000 x000 dddd 1001	#	bne rd		if (z == 0) pc = rd;
+0100 x000 dddd 0010	#	bne rd		if (z == 0) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0000 x000 dddd 1010	#	bge rd		if (z == 1 && c == 1) pc = rd;
+0100 x000 dddd 0011	#	bge rd		if (z == 1 && c == 1) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0000 x000 dddd 1011	#	ble rd		if (z == 1 && s == 1) pc = rd;
+0100 x000 dddd 0100	#	ble rd		if (z == 1 && s == 1) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0000 x000 dddd 1100	#	bgt rd		if (z == 0 && c == 1) pc = rd;
+0100 x000 dddd 0101	#	bgt rd		if (z == 0 && c == 1) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0000 x000 dddd 1101	#	blt rd		if (z == 0 && s == 1) pc = rd;
+0100 x000 dddd 0111	#	blt rd		if (z == 0 && s == 1) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
+
+
+
+
 
 
 ### Arithmetic instructions (F,I)
 
+
 #op  fisl  rd   rs
-1000 0001 dddd ssss 0000	# add rd, rs	rd = rd + rs;
+1000 0001 dddd ssss 0010	# add rd, rs	rd = rd + rs;
 	ALUOP: ADD
 	alu_out -> (val) -> reg_in0
 	alu_in0 <- (val) <- reg_out0
 	alu_in1 <- (val) <- reg_out1
 	flag.c <-
 
-1000 0001 dddd ssss 0001	# sub rd, rs	rd = rd - rs;
+1000 0001 dddd ssss 0011	# sub rd, rs	rd = rd - rs;
 	ALUOP: SUB
 	alu_out -> (val) -> reg_in0
 	alu_in0 <- (val) <- reg_out0
 	alu_in1 <- (val) <- reg_out1
 
-1000 0001 dddd ssss 0010	# mul rd, rs	rd = rd * rs;
+1000 0001 dddd ssss 0100	# mul rd, rs	rd = rd * rs;
 	ALUOP: MUL
 	alu_out -> (val) -> reg_in0
 	alu_in0 <- (val) <- reg_out0
 	alu_in1 <- (val) <- reg_out1
 
-1000 0001 dddd ssss 0011	# div rd, rs	rd = rd / rs;
+1000 0001 dddd ssss 0101	# div rd, rs	rd = rd / rs;
 	ALUOP: DIV
 	alu_out -> (val) -> reg_in0
 	alu_in0 <- (val) <- reg_out0
 	alu_in1 <- (val) <- reg_out1
 
-1000 0001 dddd ssss 0100	# mod rd, rs	rd = rd % rs;
+1000 0001 dddd ssss 0110	# mod rd, rs	rd = rd % rs;
 	ALUOP: MOD
 	alu_out -> (val) -> reg_in0
 	alu_in0 <- (val) <- reg_out0
 	alu_in1 <- (val) <- reg_out1
 
-1000 0001 0000 0000 0101	# cmp rd, rs
+1000 0001 0000 0000 0111	# cmp rd, rs
 	ALUOP: CMP
 	alu_out -> (val) -> flag
 	alu_in0 <- (val) <- reg_out0
 	alu_in1 <- (val) <- reg_out1
 
-1000 0001 0000 0000 0110	# cgt rd, rs
+1000 0001 0000 0000 1000	# cgt rd, rs
 	ALUOP: CGT
 	alu_out -> (val) -> flag
 	alu_in0 <- (val) <- reg_out0
 	alu_in1 <- (val) <- reg_out1
 
-1000 0001 0000 0000 0111	# cge rd, rs
+1000 0001 0000 0000 1001	# cge rd, rs
 	ALUOP: CGE
 	alu_out -> (val) -> flag
 	alu_in0 <- (val) <- reg_out0
 	alu_in1 <- (val) <- reg_out1
 
 #op  fisl  rd   op
-1000 0101 dddd 0000 iiiiiiii	# add rd, imm	rd = rd + imm;
-1000 0101 dddd 0001 iiiiiiii	# sub rd, imm	rd = rd - imm;
-1000 0101 dddd 0010 iiiiiiii	# mul rd, imm	rd = rd * imm;
-1000 0101 dddd 0011 iiiiiiii	# div rd, imm	rd = rd / imm;
-1000 0101 dddd 0100 iiiiiiii	# mod rd, imm	rd = rd % imm;
-1000 0101 0000 0101 iiiiiiii	# cmp rd, imm
+1000 0101 dddd 0010 iiiiiiii_iiiiiiii	# add rd, imm	rd = rd + imm;
+1000 0101 dddd 0011 iiiiiiii_iiiiiiii	# sub rd, imm	rd = rd - imm;
+1000 0101 dddd 0100 iiiiiiii_iiiiiiii	# mul rd, imm	rd = rd * imm;
+1000 0101 dddd 0101 iiiiiiii_iiiiiiii	# div rd, imm	rd = rd / imm;
+1000 0101 dddd 0110 iiiiiiii_iiiiiiii	# mod rd, imm	rd = rd % imm;
+1000 0101 0000 0111 iiiiiiii_iiiiiiii	# cmp rd, imm
 	ALUOP: CMP
 	alu_out -> (val) -> flag
 	alu_in0 <- (val) <- reg_out0
 	alu_in1 <- (val) <- reg_out1
 
-1000 0101 0000 0110 iiiiiiii	# cgt rd, imm
-1000 0101 0000 0111 iiiiiiii	# cge rd, imm
+1000 0101 0000 1000 iiiiiiii_iiiiiiii	# cgt rd, imm
+1000 0101 0000 1001 iiiiiiii_iiiiiiii	# cge rd, imm
+
+
+
 
 ### Logical instructions (I)
 
 #op  fisl  rd   rs     op
-1000 0001 dddd ssss 1000	# and rd, rs	rd = rd & rs;
+1000 0001 dddd ssss 1010	# and rd, rs	rd = rd & rs;
 	ALUOP: AND
 
-1000 0001 dddd ssss 1001	# orr rd, rs	rd = rd | rs;
+1000 0001 dddd ssss 1011	# orr rd, rs	rd = rd | rs;
 	ALUOP: ORR
 
-1000 0001 dddd ssss 1010	# xor rd, rs	rd = rd ^ rs;
+1000 0001 dddd ssss 1100	# xor rd, rs	rd = rd ^ rs;
 	ALUOP: XOR
 
-1000 0001 dddd xxxx 1011	# not rd		rd = ~rd;
+1000 0001 dddd ssss 1101	# tst rd, rs
+	ALUOP:
+
+//TODO
+1000 0001 dddd xxxx 1101	# not rd		rd = ~rd;
 	ALUOP: NOT
 	alu_out -> (val) -> reg_in0
 	alu_in0 <- (val) <- reg_out0
 	alu_in1 <- (x) <- reg_out1
 
-1000 0001 dddd ssss 1100	# tst rd, rs
-	ALUOP:
-
 
 #op  fisl  rd   op    imm
-1000 0101 dddd 1000 iiiiiiii	# and rd, imm	rd = rd & imm;
-1000 0101 dddd 1001 iiiiiiii	# orr rd, imm	rd = rd | imm;
-1000 0101 dddd 1010 iiiiiiii	# xor rd, imm	rd = rd ^ imm;
+1000 0101 dddd 1010 iiiiiiii_iiiiiiii	# and rd, imm	rd = rd & imm;
+1000 0101 dddd 1011 iiiiiiii_iiiiiiii	# orr rd, imm	rd = rd | imm;
+1000 0101 dddd 1100 iiiiiiii_iiiiiiii	# xor rd, imm	rd = rd ^ imm;
+1000 0101 dddd 1101 iiiiiiii_iiiiiiii	# tst rd, imm
 
-0000 0000 0000 0000	# tst rd, imm
+
 
 
 ### Shift instructions
@@ -218,23 +237,24 @@
 1100 0001 dddd ssss 0001	# shr rd, rs	rd = rd >> rs;
 	ALUOP: SHR
 
-1100 0000 dddd ssss 0010	# sar rd, rs	rd = rd >> rs;
+1100 0001 dddd ssss 0010	# sar rd, rs	rd = rd >> rs;
 	ALUOP: EXT + SHR
 
 1100 0001 dddd ssss 0011	# rol rd, rs	rd = (rd << rs) | (rd >> (32 - rs));
 	ALUOP: ROL
 
-1100 0000 dddd ssss 0100	# ror rd, rs	rd = (rd >> rs) | (rd << (32 - rs)); 
+1100 0001 dddd ssss 0100	# ror rd, rs	rd = (rd >> rs) | (rd << (32 - rs)); 
 	ALUOP: ROR
 
-1100 0101 dddd 0000 iiiiiiii	# shl rd, imm	rd = rd << imm;
-1100 0101 dddd 0001 iiiiiiii	# shr rd, imm	rd = rd >> imm;
-1100 0101 dddd 0010 iiiiiiii	# sar rd, imm	rd = rd >> imm;
-1100 0101 dddd 0011 iiiiiiii	# rol rd, imm	rd = (rd << imm) | (rd >> (32 - imm));
-1100 0101 dddd 0000	#	ror rd, imm	rd = (rd >> imm) | (rd << (32 - imm)); 
+1100 0101 dddd 0000 iiiiiiii_iiiiiiii	# shl rd, imm	rd = rd << imm;
+1100 0101 dddd 0001 iiiiiiii_iiiiiiii	# shr rd, imm	rd = rd >> imm;
+1100 0101 dddd 0010 iiiiiiii_iiiiiiii	# sar rd, imm	rd = rd >> imm;
+1100 0101 dddd 0011 iiiiiiii_iiiiiiii	# rol rd, imm	rd = (rd << imm) | (rd >> (32 - imm));
+1100 0101 dddd 0100 iiiiiiii_iiiiiiii	# ror rd, imm	rd = (rd >> imm) | (rd << (32 - imm)); 
+
+
 
 
 ### System instructions
 
 1111 0000 0000 0000		nop
-1111

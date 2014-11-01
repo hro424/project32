@@ -3,74 +3,9 @@
 #include <map>
 #include <regex>
 #include <string>
+#include "translator.h"
 
-namespace {
-struct translator
-{
-    static const uint32_t OP_TYPE0 =    0x00000000;
-    static const uint32_t OP_TYPE1 =    0x10000000;
-    static const uint32_t OP_TYPE2 =    0x80000000;
-    static const uint32_t OP_TYPE3 =    0xC0000000;
-    static const uint32_t FN_FLOAT =    0x08000000;
-    static const uint32_t FN_IMM =      0x04000000;
-    static const uint32_t FN_SEL_PC =   0x00000000;
-    static const uint32_t FN_SEL_REG1 = 0x01000000;
-    static const uint32_t FN_SEL_SRC =  0x02000000;
-    static const uint32_t FN_SEL_REG2 = 0x03000000;
-
-    static const uint32_t DEST_SHIFT = 20;
-    static const uint32_t SRC_SHIFT = 16;
-
-    virtual uint32_t encode(const std::string& opc, const std::string& opr1,
-                            const std::string& opr2) = 0;
-
-    static bool is_immediate(const std::string& opr)
-    {
-        return isdigit(opr[0]);
-    }
-
-    static bool is_register(const std::string& opr)
-    {
-        return std::regex_match(opr, re_reg);
-    }
-
-    static bool is_reference(const std::string& opr)
-    {
-        return std::regex_match(opr, re_ref);
-    }
-
-    static bool is_reference_offset(const std::string& opr)
-    {
-        return std::regex_match(opr, re_refoff);
-    }
-
-    static uint16_t to_uint16(const std::string& imm)
-    {
-        unsigned long n = stoul(imm, 0, 0);
-        return static_cast<uint16_t>(n & 0xFFFF);
-    }
-
-    // from literal to register address
-    static uint8_t to_reg(const std::string& opr)
-    {
-        return regaddr.at(opr);
-    }
-
-    static uint32_t to_dest(const std::string& opr)
-    {
-        return to_reg(opr) << DEST_SHIFT;
-    }
-
-    static uint32_t to_src(const std::string& opr)
-    {
-        return to_reg(opr) << SRC_SHIFT;
-    }
-
-    static const std::map<std::string, uint8_t> regaddr;
-    static const std::regex re_reg;
-    static const std::regex re_ref;
-    static const std::regex re_refoff;
-};
+namespace p32_asm {
 
 const std::map<std::string, uint8_t> translator::regaddr = {
     {"r0", 0},
@@ -89,253 +24,6 @@ const std::map<std::string, uint8_t> translator::regaddr = {
     {"r13", 13},
     {"r14", 14},
     {"r15", 15}
-};
-
-const std::regex translator::re_reg("^r[([0-9])(1[0-5])]$");
-const std::regex translator::re_ref("^@r[([0-9])(1[0-5])]$");
-const std::regex translator::re_refoff("^@\(r[([0-9])(1[0-5])]$");
-
-struct mov_translator : public translator
-{
-    static const uint32_t 
-    virtual uint32_t encode(const std::string& opc, const std::string& opr1,
-                            const std::string& opr2);
-};
-
-uint32_t
-mov_translator::encode(const std::string& opc, const std::string& opr1,
-                       const std::string& opr2)
-{
-    if (opc == "mov") {
-    }
-    else if (opc == "swp") {
-    }
-
-    return 0;
-}
-
-struct branch_translator : public translator
-{
-    static const uint32_t BEQ = 0x80000;
-    static const uint32_t BNE = 0x90000;
-    static const uint32_t BGE = 0xa0000;
-    static const uint32_t BLE = 0xb0000;
-    static const uint32_t BGT = 0xc0000;
-    static const uint32_t BLT = 0xd0000;
-
-    virtual uint32_t encode(const std::string& opc, const std::string& opr1,
-                            const std::string& opr2);
-};
-
-#define DEST(OP, OPR)                   \
-    do {                                \
-        if (is_register(OPR)) {         \
-            code |= to_dest(OPR) | OP;  \
-        } else {                        \
-            code = 0;                   \
-        }                               \
-    } while (false)
-
-uint32_t
-branch_translator::encode(const std::string& opc, const std::string& opr1,
-                          const std::string& opr2) {
-    uint32_t code = OP_TYPE0;
-
-    if (opc.length() == 0 || opr1.length() == 0 || opr2.length() > 0) {
-        // syntax error
-        return 0;
-    }
-
-    if (opc == "jmp") {
-        if (is_immediate(opr1)) {
-            code |= FN_IMM | to_uint16(opr1);
-        }
-        else if (is_register(opr1)) {
-            code |= to_dest(opr1);
-        }
-        else if (is_label(opr1)) {
-            // TODO:
-        }
-        else {
-            code = 0;
-        }
-    }
-    else if (opc == "beq") {
-        DEST(BEQ, opr1);
-    }
-    else if (opc == "bne") {
-        DEST(BNE, opr1);
-    }
-    else if (opc == "bge") {
-        DEST(BGE, opr1);
-    }
-    else if (opc == "ble") {
-        DEST(BLE, opr1);
-    }
-    else if (opc == "bgt") {
-        DEST(BGT, opr1);
-    }
-    else if (opc == "blt") {
-        DEST(BLT, opr1);
-    }
-    else {
-        // error
-        code = 0;
-    }
-    return code;
-}
-
-// add, sub, mul, div, mod, cmp
-struct arith_translator : public translator
-{
-    virtual uint32_t encode(const std::string& opc, const std::string& opr1,
-                            const std::string& opr2);
-
-    uint32_t enc_op(const std::string& op, size_t shift)
-    {
-        return str2code.at(op) << shift;
-    }
-
-    static const std::map<std::string, uint8_t> str2code;
-};
-
-const std::map<std::string, uint8_t> arith_translator::str2code =
-{
-    {"add", 0},
-    {"sub", 1},
-    {"mul", 2},
-    {"div", 3},
-    {"mod", 4},
-    {"cmp", 5},
-    {"cgt", 6},
-    {"cge", 7},
-    {"and", 8},
-    {"orr", 9},
-    {"xor", 10},
-    {"not", 11},
-    {"tst", 12}
-};
-
-uint32_t
-arith_translator::encode(const std::string& op, const std::string& opr1,
-                         const std::string& opr2)
-{
-    if (!is_register(opr1)) {
-        // syntax error
-        return 0;
-    }
-
-    uint32_t code = OP_TYPE2 | to_dest(opr1);
-
-    if (is_immediate(opr2)) {
-        code |= FN_IMM | FN_SEL_REG1 | to_uint16(opr2);
-        code |= enc_op(op, 16);
-    }
-    else if (is_register(opr2)) {
-        code |= FN_SEL_REG1 | to_src(opr2);
-        code |= enc_op(op, 12);
-    }
-    else {
-        code = 0;
-    }
-    return code;
-}
-
-struct shift_translator : public translator
-{
-    virtual uint32_t encode(const std::string& op, const std::string& opr1,
-                            const std::string& opr2);
-
-    uint32_t enc_op(const std::string& op, size_t shift)
-    {
-        return str2code.at(op) << shift;
-    }
-
-    static const std::map<std::string, uint8_t> str2code;
-};
-
-const std::map<std::string, uint8_t> shift_translator::str2code = {
-    {"shl", 0},
-    {"shr", 1},
-    {"sar", 2},
-    {"rol", 3},
-    {"ror", 4},
-};
-
-uint32_t
-shift_translator::encode(const std::string& op, const std::string& opr1,
-                         const std::string& opr2)
-{
-    if (!is_register(opr1)) {
-        // syntax error
-        return 0;
-    }
-
-    uint32_t code = OP_TYPE3 | to_dest(opr1);
-
-    if (is_immediate(opr2)) {
-        code |= FN_IMM | FN_SEL_REG1 | to_uint16(opr2);
-        code |= enc_op(op, 16);
-    }
-    else if (is_register(opr2)) {
-        code |= FN_SEL_REG1 | to_src(opr2);
-        code |= enc_op(op, 12);
-    }
-    else {
-        code = 0;
-    }
-    return code;
-}
-
-} // namespace
-
-mov_translator mov_ts;
-branch_translator br_ts;
-arith_translator ar_ts;
-shift_translator sh_ts;
-
-std::map<std::string, uint32_t> strtab;
-
-const std::map<std::string, translator*> ts = {
-    {"mov", &mov_ts},
-    {"swp", &mov_ts},
-    {"jmp", &mov_ts},
-    {"beq", &br_ts},
-    {"bne", &br_ts},
-    {"bge", &br_ts},
-    {"ble", &br_ts},
-    {"bgt", &br_ts},
-    {"blt", &br_ts},
-    {"add", &ar_ts},
-    {"sub", &ar_ts},
-    {"mul", &ar_ts},
-    {"div", &ar_ts},
-    {"mod", &ar_ts},
-    {"cmp", &ar_ts},
-    {"cgt", &ar_ts},
-    {"cge", &ar_ts},
-    {"and", &ar_ts},
-    {"orr", &ar_ts},
-    {"xor", &ar_ts},
-    {"not", &ar_ts},
-    {"tst", &ar_ts},
-    {"shl", &sh_ts},
-    {"shr", &sh_ts},
-    {"sar", &sh_ts},
-    {"rol", &sh_ts},
-    {"ror", &sh_ts},
-};
-
-// opc rd, rs
-// opc rd, imm
-struct type1_op : public translator
-{
-    static const uint32_t OP_TYPE1_1 = 0x80000000;
-    static const uint32_t OP_TYPE1_2 = 0xC0000000;
-
-    virtual uint32_t encode(const std::string& opc, const std::string& opr1,
-                            const std::string& opr2) = 0;
-    static const std::map<std::string, uint32_t> name2code;
 };
 
 const std::map<std::string, uint32_t> type1_op::name2code =
@@ -362,31 +50,44 @@ const std::map<std::string, uint32_t> type1_op::name2code =
     {"ror", 0x14},
 };
 
-// opc rd, rs
-struct rd_rs : public type1_op
+const std::map<std::string, uint32_t> type2_op::name2code =
 {
-    uint32_t encode(const std::string& opc, const std::string& opr1,
+    {"jmp", 0x00},
+    {"beq", 0x01},
+    {"bne", 0x02},
+    {"bge", 0x03},
+    {"ble", 0x04},
+    {"bgt", 0x05},
+    {"blt", 0x06},
+};
+
+// opc rd, rs
+struct ttor_rd_rs : public type1_op
+{
+    uint32_t encode(std::list<uint32_t>& out,
+                    const std::string& opc, const std::string& opr1,
                     const std::string& opr2)
     {
-        uint32_t code = name2code[opc];
+        uint32_t code = name2code.at(opc);
 
         if (code > 0xF) {
-            code = OP_REG_REG_2 | ((code & 0xF) << 12);
+            code = OP_TYPE1_2 | ((code & 0xF) << 12);
         }
         else {
-            code = OP_REG_REG_1 | (code << 12);
+            code = OP_TYPE1_1 | (code << 12);
         }
         return code | to_dest(opr1) | to_src(opr2) | FN_SEL_REG1;
     }
 };
 
 // opc rd, imm
-struct rd_imm : public type1_op
+struct ttor_rd_imm : public type1_op
 {
-    uint32_t encode(const std::string& opc, const std::string& opr1,
+    uint32_t encode(std::list<uint32_t>& out,
+                    const std::string& opc, const std::string& opr1,
                     const std::string& opr2)
     {
-        uint32_t code = name2code[opc];
+        uint32_t code = name2code.at(opc);
 
         if (code > 0xF) {
             code = OP_TYPE1_2 | ((code & 0xF) << 16);
@@ -398,141 +99,242 @@ struct rd_imm : public type1_op
     }
 };
 
-// mov rd, @rs
-struct rd_ref : public mov_op
+// opc rd
+// b, not
+struct ttor_rd : public type2_op
 {
-    uint32_t encode(const std::string& opc, const std::string& opr1,
-                    const std::string& opr2)
+    uint32_t
+    encode(std::list<uint32_t>& out,
+           const std::string& opc, const std::string& opr1,
+           const std::string& opr2 = "")
     {
-        return OP_REG_REF | to_dest(opr1) | to_src(opr2) | FN_SEL_SRC;
+        uint32_t fn = 0;
+
+        if (opc == "jmp") {
+            fn = FN_SEL_PC;
+        }
+
+        return OP_TYPE2 | name2code.at(opc) | to_dest(opr1) | fn;
     }
 };
 
-// mov rd @(rs + imm)
-struct rd_refoff : public mov_op
+// opc imm
+// jmp, system
+struct ttor_imm : public type2_op
 {
+    uint32_t
+    encode(std::list<uint32_t>& out,
+           const std::string& opc, const std::string& opr1,
+           const std::string& opr2 = "")
+    {
+        uint32_t fn;
+
+        if (opc == "jmp") {
+            fn = FN_SEL_PC;
+            // TODO: cut off lsb
+        }
+        return OP_TYPE2 | to_dest(opr1) | FN_IMM;
+    }
+};
+
+// mov rd, @rs
+struct ttor_rd_ref : public translator
+{
+    uint32_t to_src(const std::string& opr)
+    {
+        return to_reg(opr.substr(1, std::string::npos)) << SRC_SHIFT;
+    }
+
+    uint32_t encode(std::list<uint32_t>& out,
+                    const std::string& opc, const std::string& opr1,
+                    const std::string& opr2)
+    {
+        return OP_TYPE_REG_REF | to_dest(opr1) | to_src(opr2) | FN_SEL_SRC;
+    }
+};
+
+// mov @rd, rs
+struct ttor_ref_rs : public translator
+{
+    uint32_t encode(std::list<uint32_t>& out,
+                    const std::string& opc, const std::string& opr1,
+                    const std::string& opr2)
+    {
+        return OP_TYPE_REF_REG | to_dest(opr1) | to_src(opr2) | FN_SEL_REG1;
+    }
+};
+
+// jmp label
+struct ttor_label : public translator
+{
+    uint32_t encode(std::list<uint32_t>& out,
+                    const std::string& opc, const std::string& opr1,
+                    const std::string& opr2 = "")
+    {
+        /*
+        // search label and get its address
+
+        if (label_addr - current < 0x10000) {
+            return translate_imm::encode(opc, opr1);
+        }
+        else {
+            return translate_
+        }
+        */
+        return 0;
+    }
+};
+
+/*
+// mov rd @(rs + imm)
+struct rd_refoff : public translate_rd_ref
+{
+    uint32_t to_src(const std::string& opr)
+    {
+        //return to_reg(opr.substr(2, std::string::nops)) << SRC_SHIFT;
+    }
+
+    uint16_t to_uint16(const std::string& opr)
+    {
+        return 0;
+    }
+
     uint32_t
     encode_rd_refoff(const std::string& opc, const std::string& opr1,
                      const std::string& opr2)
     {
+        return OP_REG_REF | to_dest(opr1) | to_src(opr2) | to_imm(opr2) |
+            FN_SEL_SRC | FN_IMM;
+    }
+}
+*/
+
+
+/*
+// mov @(rd + imm), rs
+class translate_refoff_rs
+{
+    uint32_t encode(const std::string& opc, const std::string& opr1,
+                    const std::string& opr2)
+    {
+        return OP_TYPE_REF_REG | dest | to_src(opr2) | FN_SEL_REG1;
+    }
+};
+*/
+
+ttor_rd_rs ts_rd_rs;
+ttor_rd_imm ts_rd_imm;
+ttor_rd_ref ts_rd_ref;
+ttor_rd ts_rd;
+ttor_imm ts_imm;
+ttor_label ts_label;
+ttor_ref_rs ts_ref_rs;
+
+void
+translate(const std::string& file_name, uint32_t line_num, std::ofstream& ofs,
+          uint32_t current, const std::string& opc,
+          const std::string& opr1, const std::string& opr2,
+          const std::string& line)
+{
+    // Call translator by format
+    std::list<uint32_t> code;
+
+    if (is_register(opr1)) {
+        if (is_register(opr2)) {
+            ts_rd_rs.encode(code, opc, opr1, opr2);
+        }
+        else if (is_immediate(opr2)) {
+            ts_rd_imm.encode(code, opc, opr1, opr2);
+        }
+        else if (is_reference(opr2)) {
+            ts_rd_ref.encode(code, opc, opr1, opr2);
+        }
         /*
-        src = opr2;
-        imm = opr2;
-
-        return OP_TYPE_RREF | to_dets(opr1) | src | imm | FN_SEL_SRC;
+        else if (is_reference_offset(opr2)) {
+            rd_refoff.encode(opc, opr1, opr2);
+        }
         */
-        return 0;
-    }
-}
-
-uint32_t
-encode_rd(const std::string& opc, const std::string& opr1)
-{
-    if (opc == "jmp") {
-        fn = FN_SEL_PC;
-    }
-
-    return OP_TYPE_R | to_dest(opr1) | fn;
-}
-
-uint32_t
-encode_imm(const std::string& opc, const std::string& opr1)
-{
-}
-
-uint32_t
-encode_label(const std::string& opc, const std::string& opr1)
-{
-}
-
-uint32_t
-encode_ref_rd(const std::string& opc, const std::string& opr1,
-              const std::string& opr2)
-{
-    return OP_TYPE_REF_REG | to_dest(opr1) | to_src(opr2) | FN_SEL_REG1;
-}
-
-uint32_t
-encode_refoff_rc(const std::string& opc, const std::string& opr1,
-                 const std::string& opr2)
-{
-    return OP_TYPE_REF_REG | dest | to_src(opr2) | FN_SEL_REG1;
-}
-
-uint32_t
-translate(const std::string& opc, const std::string& opr1,
-          const std::string& opr2)
-{
-    if (translator::is_register(opr1)) {
-        if (translator::is_register(opr2)) {
-            encode_rd_rs(opc, opr1, opr2);
-        }
-        else if (translator::is_immediate(opr2)) {
-            encode_rd_imm(opc, opr1, opr2);
-        }
-        else if (translator::is_reference(opr2)) {
-            encode_rd_ref(opc, opr1, opr2);
-        }
-        else if (translator::is_reference_offset(opr2)) {
-            encode_rd_refoff(opc, opr1, opr2);
-        }
         else if (opr2.length() == 0) {
-            encode_rd(opc, opr1);
+            ts_rd.encode(code, opc, opr1);
         }
         else {
-            // syntax error
+            std::cerr << "syntax error: " << file_name << ":"
+                << line_num << ":" <<  line << std::endl;
         }
     }
-    else if (translator::is_immediate(opr1)) {
-        encode_imm(opc, opr1);
+    else if (is_immediate(opr1)) {
+        ts_imm.encode(code, opc, opr1);
     }
-    else if (translator::is_label(opr1)) {
-        encode_label(opc, opr1);
+    else if (is_label(opr1)) {
+        ts_label.encode(code, opc, opr1);
     }
-    else if (translator::is_reference(opr1)) {
-        encode_ref_rd(opc, opr1, opr2);
+    else if (is_reference(opr1)) {
+        ts_ref_rs.encode(code, opc, opr1, opr2);
     }
-    else if (translator::is_reference_offset(opr1)) {
-        encode_refoff_rd(opc, opr1, opr2);
+    /*
+    else if (is_reference_offset(opr1)) {
+        refoff_rd.encode(opc, opr1, opr2);
     }
-
-    return ts.at(opc)->encode(opc, opr1, opr2);
+    */
+    else {
+        std::cerr << "syntax error: " << file_name << ":"
+            << line_num << ":" <<  line << std::endl;
+    }
 }
+} // namespace
+
+std::map<std::string, uint32_t> strtbl;
 
 int
-main(int argc, char *argv[])
+main(int argc, char* argv[])
 {
-    std::ifstream ifs(argv[1]);
+    if (argc < 2) {
+        return EXIT_FAILURE;
+    }
+
+    std::string in_file_name = argv[1];
+    std::string out_file_name;
+
+    if (argc < 3) {
+        out_file_name = "a.out";
+    }
+    else {
+        out_file_name = argv[2];
+    }
+
+    std::ifstream ifs(in_file_name);
+    std::ofstream ofs(out_file_name);
     std::string line;
     const std::regex re("^[ \\t]*(?:([\\w\\.]+)[ \\t]*:)?[ \\t]*(?:(\\w+)[ \\t]+(@?\\w+)[ \\t]*(?:,[ \\t]*(@?\\w+))?)?.*");
     std::cmatch cm;
-    uint32_t offset = 0;
+    uint32_t current = 0;
+    uint32_t line_num = 1;
 
     while (getline(ifs, line)) {
-        //std::string str = remove_comment(line);
-        //std::cout << str << std::endl;
         if (std::regex_match(line.c_str(), cm, re)) {
             std::cout << "--- match ---" << std::endl;
             if (cm[1].length() > 0) {
                 std::cout << "label:\t\t'" << cm[1] << "'" << std::endl;
-                strtab[cm[1].str()] = offset + 4;
+                strtbl[cm[1].str()] = current + 4;
             }
 
             if (cm[2].length() > 0) {
                 std::cout << "opcode:\t\t'" << cm[2] << "'" << std::endl;
                 std::cout << "operand:\t'" << cm[3] << "'" << std::endl;
                 std::cout << "operand:\t'" << cm[4] << "'" << std::endl;
-                translate(cm[2], cm[3], cm[4]);
-                offset += 4;
+                p32_asm::translate(in_file_name, line_num, ofs,
+                                   current, cm[2], cm[3], cm[4], line);
+                current += 4;
             }
         }
+        ++line_num;
     }
 
-    std::cout << "strtab:" << std::endl;
-    for (auto i : strtab) {
-        std::cout << i.first << " " << i.second << std::endl;
+    std::cout << "strtbl:" << std::endl;
+    for (auto i : strtbl) {
+        std::cout << i.first << " " << std::hex << i.second << std::endl;
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 

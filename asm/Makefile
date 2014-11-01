@@ -1,8 +1,8 @@
 CXX = clang++
-CXXFLAGS = -std=c++11 -Wall
+CXXFLAGS = -std=c++11 -Wall -g
 
 all: asm.cc
-	$(CXX) -o as $< $(CXXFLAGS)
+	$(CXX) -o as $^ $(CXXFLAGS)
 
 .PHONY: clean
 clean:
