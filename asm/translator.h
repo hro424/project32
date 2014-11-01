@@ -25,9 +25,9 @@ struct translator
     static const uint32_t DEST_SHIFT = 20;
     static const uint32_t SRC_SHIFT = 16;
 
-    virtual uint32_t encode(std::list<uint32_t>& out,
-                            const std::string& opc, const std::string& opr1,
-                            const std::string& opr2) = 0;
+    virtual void encode(std::list<uint32_t>& out,
+                        const std::string& opc, const std::string& opr1,
+                        const std::string& opr2) = 0;
 
     uint16_t to_uint16(const std::string& imm)
     {
@@ -61,9 +61,9 @@ struct type1_op : public translator
     static const uint32_t OP_TYPE1_1 = 0x80000000;
     static const uint32_t OP_TYPE1_2 = 0xC0000000;
 
-    virtual uint32_t encode(std::list<uint32_t>& out,
-                            const std::string& opc, const std::string& opr1,
-                            const std::string& opr2) = 0;
+    virtual void encode(std::list<uint32_t>& out,
+                        const std::string& opc, const std::string& opr1,
+                        const std::string& opr2) = 0;
     static const std::map<std::string, uint32_t> name2code;
 };
 
@@ -72,9 +72,9 @@ struct type2_op : public translator
 {
     static const uint32_t OP_TYPE2 = 0x40000000;
 
-    virtual uint32_t encode(std::list<uint32_t>& out,
-                            const std::string& opc, const std::string& opr1,
-                            const std::string& opr2 = "") = 0;
+    virtual void encode(std::list<uint32_t>& out,
+                        const std::string& opc, const std::string& opr1,
+                        const std::string& opr2 = "") = 0;
     static const std::map<std::string, uint32_t> name2code;
 };
 
@@ -105,7 +105,7 @@ bool is_reference_offset(const std::string& opr)
 
 bool is_label(const std::string& opr)
 {
-    return false;
+    return !is_immediate(opr) && !is_register(opr) && !is_reference(opr);
 }
 
 
