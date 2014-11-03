@@ -11,9 +11,9 @@ struct translator
     static const uint32_t OP_TYPE0 =    0x00000000;
     static const uint32_t OP_TYPE1_1 =  0x80000000;
     static const uint32_t OP_TYPE1_2 =  0xC0000000;
-    static const uint32_t OP_TYPE2 =    0x10000000;
-    static const uint32_t OP_TYPE_REG_REF = 0x40000000;
-    static const uint32_t OP_TYPE_REF_REG = 0x50000000;
+    static const uint32_t OP_TYPE2 =    0x40000000;
+    static const uint32_t OP_TYPE_REG_REF = 0x10000000;
+    static const uint32_t OP_TYPE_REF_REG = 0x20000000;
 
     static const uint32_t FN_FLOAT =    0x08000000;
     static const uint32_t FN_IMM =      0x04000000;
@@ -58,9 +58,6 @@ struct translator
 // opc rd, imm
 struct type1_op : public translator
 {
-    static const uint32_t OP_TYPE1_1 = 0x80000000;
-    static const uint32_t OP_TYPE1_2 = 0xC0000000;
-
     virtual void encode(std::list<uint32_t>& out,
                         const std::string& opc, const std::string& opr1,
                         const std::string& opr2) = 0;
@@ -70,8 +67,6 @@ struct type1_op : public translator
 // opc rd
 struct type2_op : public translator
 {
-    static const uint32_t OP_TYPE2 = 0x40000000;
-
     virtual void encode(std::list<uint32_t>& out,
                         const std::string& opc, const std::string& opr1,
                         const std::string& opr2 = "") = 0;

@@ -1,3 +1,6 @@
+`ifndef P32_REG_V
+`define P32_REG_V
+
 `include "config.v" 
 // 32-bit x 16 registers
 // dual port
@@ -36,3 +39,4 @@ always @(posedge clk, posedge rst) begin
 end
 
 endmodule
+`endif // P32_REG_V

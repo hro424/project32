@@ -7,9 +7,13 @@
 	mov	r3, .out
 	beq	r3		# branch if under-carry
 	add	r0, r1
-	swp	r0, r1
+
+#	swp	r0, r1
+	mov	r4, r0
+	mov	r0, r1
+	mov	r1, r4
+
 	sub	r2, 1
 	mov	r3, .loop
-	jmp	r3
 .out:
 	jmp	r3

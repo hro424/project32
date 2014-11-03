@@ -1,4 +1,3 @@
-`include "config.v"
 `include "proc.v"
 
 module Test;

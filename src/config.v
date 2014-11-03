@@ -1,5 +1,5 @@
-`ifndef CONFIG_H
-`define CONFIG_H
+`ifndef P32_CONFIG_H
+`define P32_CONFIG_H
 
 `default_nettype		none
 
@@ -24,4 +24,4 @@
 `define REGADDR			[`REGADDR_MSB:0]
 `define NUM_REGS		(1 << `REGADDR_SIZE)
 
-`endif // CONFIG_H
+`endif // P32_CONFIG_H

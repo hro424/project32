@@ -1,3 +1,6 @@
+`ifndef PC32_PROC_V
+`define PC32_PROC_V
+
 `include "config.v"
 `include "alu.v"
 `include "decoder.v"
@@ -87,3 +90,5 @@ assign mem_out = operand1;
 assign we = iswrite;
 
 endmodule
+
+`endif // PC32_PROC_V

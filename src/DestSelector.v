@@ -1,3 +1,6 @@
+`ifndef P32_DEST_SEL_V
+`define P32_DEST_SEL_V
+
 module DestSelector(
 	input [1:0] sel,
 	input `WORD din,
@@ -11,3 +14,5 @@ assign dout1 = sel[0] ? 'hx : sel[1] ? din : 'hx;
 assign dout2 = sel[0] ? 'hx : sel[1] ? 'hx : din;
 
 endmodule
+
+`endif // P32_DEST_SEL_V
