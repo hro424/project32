@@ -1,3 +1,6 @@
+`ifndef P32_DECODER_V
+`define P32_DECODER_V
+
 module Decoder(
 	input `WORD inst,
 	output `ALU_OPCODE opcode,
@@ -11,16 +14,20 @@ module Decoder(
 	output we
 );
 
-assign rd = inst[27:24];
-assign rs = inst[23:20];
-assign isfloat = inst[19];
-assign src = inst[18];
-assign dst = inst[17:16];
+assign rd = inst[23:20];
+assign isfloat = inst[27];
+assign src = inst[26];
+assign dst = inst[25:24];
 assign iswrite = &dst;
+
+assign rs = inst[19:16];
 assign imm = inst[15:0];
 
-wire op_msb = inst[31:28];
-wire op_lsb = op_msb > 8 && src ? inst[rs] : inst[15:12];
+wire [3:0] op_msb = inst[31:28];
+wire [3:0] op_lsb = src ? inst[19:16] : inst[15:12];
+
 assign opcode = {op_msb, op_lsb};
 
 endmodule
+
+`endif // P32_DECODER_V

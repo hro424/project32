@@ -130,7 +130,8 @@ struct ttor_rd : public type2_op
             fn = FN_SEL_PC;
         }
 
-        out.push_back(OP_TYPE2 | name2code.at(opc) | to_dest(opr1) | fn);
+        out.push_back(OP_TYPE2 | (name2code.at(opc) << 16) |
+                      to_dest(opr1) | fn);
     }
 };
 

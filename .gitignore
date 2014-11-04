@@ -1,0 +1,7 @@
+*~
+*.o
+*.swp
+*.log
+*.vcd
+a.out
+as

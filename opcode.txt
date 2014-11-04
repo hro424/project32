@@ -1,7 +1,7 @@
 
 ### Transfer instructions
 
-#op   fn   rd   rs  imm
+op r  fn   rd   rs  imm
 1000 0001 dddd ssss 0000	# mov rd, rs		rd = rs;
 	ALUOP: THRU B
 	alu_out -> (val) -> reg_in0
@@ -10,7 +10,14 @@
 	sel_dst <- ("reg")
 	sel_src <- ("reg")
 
-//TODO
+1000 0101 dddd 0000 imm 	# mov rd, imm		rd = imm;
+	ALUOP: THRU B
+	alu_out -> (val) -> rd
+	alu_in0 <- x
+	alu_in1 <- (imm)
+	sel_dst <- ("reg")
+	sel_src <- ("imm")
+
 0001 0010 dddd ssss 0000	# mov rd, @rs		rd = mem[rs];
 	ALUOP: THRU B
 	alu_out -> (addr) -> mem
@@ -20,8 +27,7 @@
 	sel_src <- ("reg")
 	reg_in1 <- (val) <- mem
 
-//TODO
-0000 0010 dddd ssss 		# mov @rd, rs		mem[rd] = rs;
+0100 0010 dddd ssss 		# mov @rd, rs		mem[rd] = rs;
 	ALUOP: THRU A
 	alu_out -> (addr, we) -> mem
 	alu_in0 <- (addr) <- reg_out0
@@ -29,14 +35,6 @@
 	sel_dst <- ("mem")
 	sel_src <- ("reg")
 	reg_out1 -> ("val") -> mem
-
-1000 0101 dddd 0000 imm 	# mov rd, imm		rd = imm;
-	ALUOP: THRU B
-	alu_out -> (val) -> rd
-	alu_in0 <- x
-	alu_in1 <- (imm)
-	sel_dst <- ("reg")
-	sel_src <- ("imm")
 
 //TODO
 0000 0101 dddd ssss imm	#	mov rd, @(rs + imm)	rd = mem[rs + imm];
@@ -47,17 +45,17 @@
 	TODO
 	ALUOP: THRU A
 
-0101 0010 0000 0000	#	mov.b rd, @rs
+0001 0010 0000 0000	#	mov.b rd, @rs
 	TODO
 
-0011 0010 0000 0000	#	mov.h rd, @rs
+0010 0010 0000 0000	#	mov.h rd, @rs
 	TODO
 
-0101 0010 0000 0000	#	mov.b @rd, rs
+0001 0010 0000 0000	#	mov.b @rd, rs
 	TODO
 	ALUOP: THRU A
 
-0011 0001 0000 0000	#	mov.h @rd, rs
+0010 0001 0000 0000	#	mov.h @rd, rs
 	ALUOP: THRU A
 
 1000 0001 dddd ssss 0001	#	swp rd, rs
@@ -82,41 +80,43 @@
 
 #op  fisl  rd  ctrl  imm
 
-0100 x000 dddd 0000	#	jmp rd		pc = rd;
+0100 x000 dddd 0111	#	jmp rd		pc = rs;
+0100 -000 ---- ssss
+0x40d0_0000
 	ALUOP: THRU A
 	alu_out -> (addr, we) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
 //TODO
-0000 0100 xxxx 0000 imm	#	jmp imm		pc = pc + imm;
+0100 0100 xxxx 0111 imm	#	jmp imm		pc = pc + imm;
 
 
-0100 x000 dddd 0001	#	beq rd		if (z == 1) pc = rd;
+0100 x000 dddd ---- 0001	#	beq rd		if (c == 0 && s == 0 && z == 1) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr, flag.z) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0100 x000 dddd 0010	#	bne rd		if (z == 0) pc = rd;
+0100 x000 dddd ---- 0110	#	bne rd		if (c == 1 && s == 1 && z == 0) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0100 x000 dddd 0011	#	bge rd		if (z == 1 && c == 1) pc = rd;
+0100 x000 dddd ---- 0101	#	bge rd		if (c == 1 && s == 0 && z == 1) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0100 x000 dddd 0100	#	ble rd		if (z == 1 && s == 1) pc = rd;
+0100 x000 dddd ---- 0011	#	ble rd		if (c == 0 && s == 1 && z == 1) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0100 x000 dddd 0101	#	bgt rd		if (z == 0 && c == 1) pc = rd;
+0100 x000 dddd ---- 0100	#	bgt rd		if (c == 1 && s == 0 && z == 0) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0100 x000 dddd 0111	#	blt rd		if (z == 0 && s == 1) pc = rd;
+0100 x000 dddd ---- 0010	#	blt rd		if (c == 0 && s == 1 && z == 0) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
@@ -131,6 +131,7 @@
 
 #op  fisl  rd   rs
 1000 0001 dddd ssss 0010	# add rd, rs	rd = rd + rs;
+0x81ds_2000
 	ALUOP: ADD
 	alu_out -> (val) -> reg_in0
 	alu_in0 <- (val) <- reg_out0
@@ -185,7 +186,7 @@
 1000 0101 dddd 0100 iiiiiiii_iiiiiiii	# mul rd, imm	rd = rd * imm;
 1000 0101 dddd 0101 iiiiiiii_iiiiiiii	# div rd, imm	rd = rd / imm;
 1000 0101 dddd 0110 iiiiiiii_iiiiiiii	# mod rd, imm	rd = rd % imm;
-1000 0101 0000 0111 iiiiiiii_iiiiiiii	# cmp rd, imm
+1000 0101 dddd 0111 iiiiiiii_iiiiiiii	# cmp rd, imm
 	ALUOP: CMP
 	alu_out -> (val) -> flag
 	alu_in0 <- (val) <- reg_out0
