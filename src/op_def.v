@@ -5,7 +5,7 @@
 
 // Transfer operations
 
-`define ALU_OP_THA_WORD		(`ALU_OPCODE_SIZE'b0010_0000)
+`define ALU_OP_THA_WORD		(`ALU_OPCODE_SIZE'b0100_0000)
 `define ALU_OP_THB_WORD		(`ALU_OPCODE_SIZE'b1000_0000)
 `define ALU_OP_THA_HALF		(`ALU_OPCODE_SIZE'hxx)
 `define ALU_OP_THB_HALF		(`ALU_OPCODE_SIZE'hxx)

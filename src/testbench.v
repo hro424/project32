@@ -15,6 +15,7 @@ wire we;
 
 reg `WORD memory [0:`DEPTH - 1];
 
+// Clock generator
 always #(STEP / 2) begin
 	clk <= ~clk;
 end
@@ -42,7 +43,7 @@ initial begin
 
 	rst <= 0;
 
-	#(STEP * 100)
+	#(STEP * 120)
 	$finish;
 end
 
@@ -51,7 +52,17 @@ always @(posedge clk) begin
 end
 
 always @(negedge clk) begin
-	$display("pc: %h data: %b ", proc.counter, proc.inst);
+	$display("\n[%h] code:%b(%hh)", proc.counter, proc.inst, proc.inst);
+	$display("  DEC>  op:%b(%b:%b) rd:%b rs:%b sel_src:%b sel_dst:%b",
+		 proc.opcode, proc.op_msb, proc.op_lsb, proc.rd, proc.rs,
+		 proc.sel_src, proc.sel_dst);
+	$display("  SSEL> rfout:%hh", proc.rfout1);
+	$display("  ALU>  in0:%hh in1:%hh out:%hh(%dd)",
+		 proc.operand0, proc.operand1, proc.aluout, proc.aluout);
+	$display("  DSEL> reg:%hh mem:%hh pc:%hh",
+		 proc.dst0, proc.mem_addr, proc.dst2);
+	$display("  FLAG> carry:%b sign:%b zero:%b",
+		 proc.cflag, proc.sflag, proc.zflag);
 end
 
 endmodule

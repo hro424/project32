@@ -27,7 +27,7 @@ op r  fn   rd   rs  imm
 	sel_src <- ("reg")
 	reg_in1 <- (val) <- mem
 
-0010 0010 dddd ssss 		# mov @rd, rs		mem[rd] = rs;
+0100 0010 dddd ssss 		# mov @rd, rs		mem[rd] = rs;
 	ALUOP: THRU A
 	alu_out -> (addr, we) -> mem
 	alu_in0 <- (addr) <- reg_out0
@@ -80,42 +80,43 @@ op r  fn   rd   rs  imm
 
 #op  fisl  rd  ctrl  imm
 
-0100 x000 dddd 0000	#	jmp rd		pc = rd;
+0100 x000 dddd 0111	#	jmp rd		pc = rs;
+0100 -000 ---- ssss
 0x40d0_0000
 	ALUOP: THRU A
 	alu_out -> (addr, we) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
 //TODO
-0100 0100 xxxx 0000 imm	#	jmp imm		pc = pc + imm;
+0100 0100 xxxx 0111 imm	#	jmp imm		pc = pc + imm;
 
 
-0100 x000 dddd 0001	#	beq rd		if (z == 1) pc = rd;
+0100 x000 dddd ---- 0001	#	beq rd		if (c == 0 && s == 0 && z == 1) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr, flag.z) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0100 x000 dddd 0010	#	bne rd		if (z == 0) pc = rd;
+0100 x000 dddd ---- 0110	#	bne rd		if (c == 1 && s == 1 && z == 0) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0100 x000 dddd 0011	#	bge rd		if (z == 1 && c == 1) pc = rd;
+0100 x000 dddd ---- 0101	#	bge rd		if (c == 1 && s == 0 && z == 1) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0100 x000 dddd 0100	#	ble rd		if (z == 1 && s == 1) pc = rd;
+0100 x000 dddd ---- 0011	#	ble rd		if (c == 0 && s == 1 && z == 1) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0100 x000 dddd 0101	#	bgt rd		if (z == 0 && c == 1) pc = rd;
+0100 x000 dddd ---- 0100	#	bgt rd		if (c == 1 && s == 0 && z == 0) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
 
-0100 x000 dddd 0110	#	blt rd		if (z == 0 && s == 1) pc = rd;
+0100 x000 dddd ---- 0010	#	blt rd		if (c == 0 && s == 1 && z == 0) pc = rd;
 	ALUOP: THRU A
 	alu_out -> (addr) -> pc
 	alu_in0 <- (addr) <- reg_out0
@@ -185,7 +186,7 @@ op r  fn   rd   rs  imm
 1000 0101 dddd 0100 iiiiiiii_iiiiiiii	# mul rd, imm	rd = rd * imm;
 1000 0101 dddd 0101 iiiiiiii_iiiiiiii	# div rd, imm	rd = rd / imm;
 1000 0101 dddd 0110 iiiiiiii_iiiiiiii	# mod rd, imm	rd = rd % imm;
-1000 0101 0000 0111 iiiiiiii_iiiiiiii	# cmp rd, imm
+1000 0101 dddd 0111 iiiiiiii_iiiiiiii	# cmp rd, imm
 	ALUOP: CMP
 	alu_out -> (val) -> flag
 	alu_in0 <- (val) <- reg_out0
