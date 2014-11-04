@@ -1,0 +1,196 @@
+
+Project32仕様書
+===============
+
+2014年11月4日
+石川広男
+
+プロセッサ仕様
+--------------
+
+レジスタ数		16
+アドレッシング		32ビット
+機械語命令　		32ビット固定長
+
+命令フォーマット
+----------------
+
+op rd, rs
+	rd: デスティネーションレジスタ
+	rs: ソースレジスタ
+
+op rd, imm
+	rd: デスティネーションレジスタ
+	imm: 即値
+
+op rd, @rs
+	rd: デスティネーションレジスタ
+	rs: ソースレジスタ（メモリ参照）
+	rsで指示されるメモリアドレスへアクセスし、値を読み出す。
+
+op @rd, rs
+	rd: デスティネーションレスタ（メモリ参照）
+	rs: ソースレジスタ
+	rdで指示されるメモリアドレスへアクセスし、値を書き込む。
+
+op rd
+	rd: デスティネーションレスタ
+
+命令セット
+----------
+
+dddd: デスティネーションレジスタアドレス
+ssss: ソースレジスタアドレス
+iiii: 即値
+----: ドントケア
+
+### 転送命令
+
+mov rd, rs	rd = rs
+		1000 0001 dddd ssss 0000 ---- ---- ----
+
+mov rd, imm	rd = imm
+		1000 0101 dddd 0000 iiii iiii iiii iiii
+
+mov rd, @rs	rd = mem[rs]
+		1000_0010_dddd_ssss_0000_----_----_----
+mov @rd, rs	mem[rd] = rs
+		0100 0010 dddd ssss 0000 ---- ---- ----
+
+### 分岐命令
+
+jmp rs		pc = rs
+		0100_-000_dddd_----_0000_----_----_----
+
+beq rs		if (c == 0 && s == 0 && z == 1) pc = rs
+		0100_-000_dddd_----_0001_----_----_----
+
+bne rs		if (c == 1 && s == 1 && z == 0) pc = rs
+		0100_-000_dddd_----_0110_----_----_----
+
+bge rs		if (c == 1 && s == 0 && z == 1) pc = rs
+		0100_-000_dddd_----_0101_----_----_----
+
+ble rs		if (c == 0 && s == 1 && z == 1) pc = rs
+		0100_-000_dddd_----_0011_----_----_----
+
+bgt rs		if (c == 1 && s == 0 && z == 0) pc = rs
+		0100_-000_dddd_----_0100_----_----_----
+
+blt rs		if (c == 0 && s == 1 && z == 0) pc = rs
+		0100_-000_dddd_----_0010_----_----_----
+
+### 算術演算命令
+
+add rd, rs	rd = rd + rs
+		1000 0001 dddd ssss 0010 ---- ---- ----
+
+sub rd, rs	rd = rd - rs
+		1000 0001 dddd ssss 0011 ---- ---- ----
+
+mul rd, rs	rd = rd * rs
+		1000 0001 dddd ssss 0100 ---- ---- ----
+
+div rd, rs	rd = rd / rs
+		1000 0001 dddd ssss 0101 ---- ---- ----
+
+mod rd, rs	rd = rd % rs
+		1000 0001 dddd ssss 0110 ---- ---- ----
+
+cmp rd, rs	if (rd == rs) {c,s,r} = {0,0,1} else {c,s,r} = {1,1,0}
+		1000 0001 dddd ssss 0111 ---- ---- ----
+
+cgt rd, rs	if (rd > rs) {c,s,r} = {1,0,0} else {c,s,r} = {0,1,1}
+		1000 0001 dddd ssss 1000 ---- ---- ----
+
+cge rd, rs	if (rd >= rs) {c,s,r} = {1,0,1} else {c,s,r} = {0,1,0}
+		1000 0001 dddd ssss 1001 ---- ---- ----
+
+add rd, imm	rd = rd + imm
+		1000 0101 dddd 0010 iiii iiii iiii iiii
+
+sub rd, imm	rd = rd - imm
+		1000 0101 dddd 0011 iiii iiii iiii iiii
+
+mul rd, imm	rd = rd * imm
+		1000 0101 dddd 0100 iiii iiii iiii iiii
+
+div rd, imm	rd = rd / imm
+		1000 0101 dddd 0101 iiii iiii iiii iiii
+
+mod rd, imm	rd = rd % imm
+		1000 0101 dddd 0110 iiii iiii iiii iiii
+
+cmp rd, imm	if (rd == imm) {c,s,r} = {0,0,1} else {c,s,r} = {1,1,0}
+		1000 0101 dddd 0111 iiii iiii iiii iiii
+
+cgt rd, imm	if (rd > imm) {c,s,r} = {1,0,0} else {c,s,r} = {0,1,1}
+		1000 0101 dddd 1000 iiii iiii iiii iiii
+
+cge rd, imm	if (rd >= imm) {c,s,r} = {1,0,1} else {c,s,r} = {0,1,0}
+		1000 0101 dddd 1001 iiii iiii iiii iiii
+
+### 論理演算命令
+
+and rd, rs	rd = rd & rs
+		1000 0001 dddd ssss 1010 ---- ---- ----
+
+orr rd, rs	rd = rd | rs
+		1000 0001 dddd ssss 1011 ---- ---- ----
+
+xor rd, rs	rd = rd ^ rs
+		1000 0001 dddd ssss 1100 ---- ---- ----
+
+tst rd, rs
+		1000 0001 dddd ssss 1101 ---- ---- ----
+
+not rd		rd = ~rd
+
+and rd, imm	rd = rd & imm
+		1000 0101 dddd 1010 iiii iiii iiii iiii
+
+orr rd, imm	rd = rd | imm
+		1000 0101 dddd 1011 iiii iiii iiii iiii
+
+xor rd, imm	rd = rd ^ imm
+		1000 0101 dddd 1100 iiii iiii iiii iiii
+
+tst rd, imm
+		1000 0101 dddd 1101 iiii iiii iiii iiii
+
+### シフト命令
+
+shl rd, rs	rd = rd << rs
+		1100 0001 dddd ssss 0000 ---- ---- ----
+
+shr rd, rs	rd = rd >> rs
+		1100 0001 dddd ssss 0001 ---- ---- ----
+
+sar rd, rs	rd = rd >> rs
+		1100 0001 dddd ssss 0010 ---- ---- ----
+
+rol rd, rs	rd = (rd << rs) | (rd >> (32 - rs))
+		1100 0001 dddd ssss 0011 ---- ---- ----
+
+ror rd, rs	rd = (rd >> rs) | (rd << (32 - rs))
+		1100 0001 dddd ssss 0100 ---- ---- ----
+
+shl rd, imm	rd = rd << imm
+		1100 0101 dddd 0000 iiii iiii iiii iiii
+
+shr rd, imm	rd = rd >> rs
+		1100 0101 dddd 0001 iiii iiii iiii iiii
+
+sar rd, imm	rd = rd >> rs
+		1100 0101 dddd 0010 iiii iiii iiii iiii
+
+rol rd, imm	rd = (rd << imm) | (rd >> (32 - imm))
+		1100 0101 dddd 0011 iiii iiii iiii iiii
+
+ror rd, imm	rd = (rd >> imm) | (rd << (32 - imm))
+		1100 0101 dddd 0100 iiii iiii iiii iiii
+
+
+### システム命令
+
+nop

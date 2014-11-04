@@ -7,19 +7,15 @@ module Decoder(
 	output `REGADDR rd,
 	output `REGADDR rs,
 	output isfloat,
-	output iswrite,
-	output [1:0] dst,
 	output src,
-	output `HALF imm,
-	output we
+	output [1:0] dst,
+	output `HALF imm
 );
 
-assign rd = inst[23:20];
 assign isfloat = inst[27];
 assign src = inst[26];
 assign dst = inst[25:24];
-assign iswrite = &dst;
-
+assign rd = inst[23:20];
 assign rs = inst[19:16];
 assign imm = inst[15:0];
 

@@ -4,8 +4,8 @@
 `include "config.v"
 `include "alu.v"
 `include "decoder.v"
-`include "DestSelector.v"
-`include "SrcSelector.v"
+`include "dst_sel.v"
+`include "src_sel.v"
 `include "reg.v"
 
 module Processor(
@@ -42,9 +42,10 @@ wire `WORD		operand0;
 wire `WORD		operand1;
 wire `WORD		aluout;
 wire `WORD		dst0;	// to reg
+wire			dst0_we;
+wire `WORD		rf_in0;
 wire			rf_we0;
 wire `WORD		dst2;	// to pc
-wire			rf_we1;
 wire `REGADDR		rd;
 wire `REGADDR		rs;
 wire			isfloat;
@@ -77,23 +78,27 @@ DestSelector dselector(
 	.sel(sel_dst),
 	.din(aluout),
 	.dout0(dst0),
-	.we0(rf_we0),
+	.we0(dst0_we),
 	.dout1(mem_addr),
 	.dout2(dst2)
 );
 
 assign operand1 = sel_src ? imm : rfout1;
+assign rf_in0 =
+	(sel_dst == 2'b10 && opcode == `ALU_OP_THB_WORD) ? mem_in : dst0;
+assign rf_we0 =
+	(sel_dst == 2'b10 && opcode == `ALU_OP_THB_WORD) ? 1 : dst0_we;
 
 RegisterFile rf(
 	.clk(clk),
 	.rst(rst),
 	.addr0(rd),
-	.din0(dst0),
+	.din0(rf_in0),
 	.dout0(operand0),
 	.we0(rf_we0),
 	.addr1(rs),
-	.din1(mem_in),
-	.we1(rf_we1),
+	.din1('h0),
+	.we1('h0),
 	.dout1(rfout1)
 );
 
@@ -103,15 +108,14 @@ Decoder dec(
 	.rd(rd),
 	.rs(rs),
 	.isfloat(isfloat),
-	.iswrite(iswrite),
-	.dst(sel_dst),
 	.src(sel_src),
+	.dst(sel_dst),
 	.imm(imm)
 );
 
 assign pc = counter;
 assign mem_out = operand1;
-assign we = iswrite;
+assign we = (sel_dst == 2'b10 && opcode == `ALU_OP_THA_WORD) ? 1 : 0;
 
 endmodule
 

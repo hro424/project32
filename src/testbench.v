@@ -43,7 +43,7 @@ initial begin
 
 	rst <= 0;
 
-	#(STEP * 120)
+	#(STEP * 16)
 	$finish;
 end
 
@@ -53,9 +53,9 @@ end
 
 always @(negedge clk) begin
 	$display("\n[%h] code:%b(%hh)", proc.counter, proc.inst, proc.inst);
-	$display("  DEC>  op:%b(%b:%b) rd:%b rs:%b sel_src:%b sel_dst:%b",
+	$display("  DEC>  op:%b(%b:%b) rd:%d rs:%d sel_src:%b sel_dst:%b we:%b",
 		 proc.opcode, proc.op_msb, proc.op_lsb, proc.rd, proc.rs,
-		 proc.sel_src, proc.sel_dst);
+		 proc.sel_src, proc.sel_dst, proc.we);
 	$display("  SSEL> rfout:%hh", proc.rfout1);
 	$display("  ALU>  in0:%hh in1:%hh out:%hh(%dd)",
 		 proc.operand0, proc.operand1, proc.aluout, proc.aluout);
@@ -63,6 +63,8 @@ always @(negedge clk) begin
 		 proc.dst0, proc.mem_addr, proc.dst2);
 	$display("  FLAG> carry:%b sign:%b zero:%b",
 		 proc.cflag, proc.sflag, proc.zflag);
+	$display("  MEM> addr:%h read:%h write:%h",
+		proc.mem_addr, proc.mem_in, proc.mem_out);
 end
 
 endmodule

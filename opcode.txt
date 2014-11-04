@@ -18,7 +18,7 @@ op r  fn   rd   rs  imm
 	sel_dst <- ("reg")
 	sel_src <- ("imm")
 
-0001 0010 dddd ssss 0000	# mov rd, @rs		rd = mem[rs];
+1000 0010 dddd ssss 0000	# mov rd, @rs		rd = mem[rs];
 	ALUOP: THRU B
 	alu_out -> (addr) -> mem
 	alu_in0 <- (x) <- reg_out0
@@ -80,7 +80,7 @@ op r  fn   rd   rs  imm
 
 #op  fisl  rd  ctrl  imm
 
-0100 x000 dddd 0111	#	jmp rd		pc = rs;
+0100 x000 dddd 0000	#	jmp rd		pc = rs;
 0100 -000 ---- ssss
 0x40d0_0000
 	ALUOP: THRU A
