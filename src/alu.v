@@ -56,7 +56,7 @@ function `WORD alu;
 	endcase
 endfunction
 
-always @(posedge clk, posedge rst) begin
+always @(negedge clk, posedge rst) begin
 	if (rst) begin
 		c <= 1'b0;
 		s <= 1'b0;

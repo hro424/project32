@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 `include "proc.v"
 
 module Test;
@@ -32,9 +33,9 @@ Processor proc(
 );
 
 initial begin
-	$dumpfile("test.vcd");
+	$dumpfile("fibo.vcd");
 	$dumpvars(0, Test);
-	$readmemh("mem.dat", memory);
+	$readmemh("fibo.dat", memory);
 	clk <= 0;
 	rst <= 1;
 
@@ -43,7 +44,7 @@ initial begin
 
 	rst <= 0;
 
-	#(STEP * 16);
+	#(STEP * 120);
 	$finish;
 end
 

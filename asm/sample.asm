@@ -17,7 +17,7 @@
 	# 85270000
 
 	beq	r3		# branch if under-carry
-	# 40301000
+	# 40310000
 
 	add	r0, r15
 	# 810f2000
