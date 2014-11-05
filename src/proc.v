@@ -26,8 +26,8 @@ always @(posedge clk, posedge rst) begin
 		counter <= 0;
 	end
 	else if (clk) begin
-		if (sel_dst == 'h0 &&
-		    (op_lsb[2:0] == 0 ||
+		if (sel_dst == 2'b00 &&
+		    (op_lsb[2:0] == 3'b000 ||
 		     op_lsb[2:0] == {cflag, sflag, zflag})) begin
 			counter <= dst2;
 		end
@@ -87,7 +87,7 @@ assign operand1 = sel_src ? imm : rfout1;
 assign rf_in0 =
 	(sel_dst == 2'b10 && opcode == `ALU_OP_THB_WORD) ? mem_in : dst0;
 assign rf_we0 =
-	(sel_dst == 2'b10 && opcode == `ALU_OP_THB_WORD) ? 1 : dst0_we;
+	(sel_dst == 2'b10 && opcode == `ALU_OP_THB_WORD) ? 1'b1 : dst0_we;
 
 RegisterFile rf(
 	.clk(clk),
@@ -115,7 +115,7 @@ Decoder dec(
 
 assign pc = counter;
 assign mem_out = operand1;
-assign we = (sel_dst == 2'b10 && opcode == `ALU_OP_THA_WORD) ? 1 : 0;
+assign we = (sel_dst == 2'b10 && opcode == `ALU_OP_THA_WORD) ? 1'b1 : 1'b0;
 
 endmodule
 

@@ -43,7 +43,7 @@ initial begin
 
 	rst <= 0;
 
-	#(STEP * 16)
+	#(STEP * 16);
 	$finish;
 end
 

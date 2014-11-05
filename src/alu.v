@@ -58,44 +58,44 @@ endfunction
 
 always @(posedge clk, posedge rst) begin
 	if (rst) begin
-		c <= 0;
-		s <= 0;
-		z <= 0;
+		c <= 1'b0;
+		s <= 1'b0;
+		z <= 1'b0;
 	end
 	else begin
 		case(com)
 		`ALU_OP_CMP:
 			if (in0 == in1) begin
-				c <= 0;
-				s <= 0;
-				z <= 1;
+				c <= 1'b0;
+				s <= 1'b0;
+				z <= 1'b1;
 			end
 			else begin
-				c <= 1;
-				s <= 1;
-				z <= 0;
+				c <= 1'b1;
+				s <= 1'b1;
+				z <= 1'b0;
 			end
 		`ALU_OP_CGE:
 			if (in0 >= in1) begin
-				c <= 1;
-				s <= 0;
-				z <= 1;
+				c <= 1'b1;
+				s <= 1'b0;
+				z <= 1'b1;
 			end
 			else begin
-				c <= 0;
-				s <= 1;
-				z <= 0;
+				c <= 1'b0;
+				s <= 1'b1;
+				z <= 1'b0;
 			end
 		`ALU_OP_CGT: 
 			if (in0 > in1) begin
-				c <= 1;
-				s <= 0;
-				z <= 0;
+				c <= 1'b1;
+				s <= 1'b0;
+				z <= 1'b0;
 			end
 			else begin
-				c <= 0;
-				s <= 1;
-				z <= 1;
+				c <= 1'b0;
+				s <= 1'b1;
+				z <= 1'b1;
 			end
 		endcase
 	end

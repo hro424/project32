@@ -12,7 +12,7 @@ module DestSelector(
 
 // reg (01 or 11)
 assign dout0 = sel[0] ? din : 'hx;
-assign we0 = sel[0] ? 1 : 0;
+assign we0 = sel[0] ? 1'b1 : 1'b0;
 
 // mem (10)
 assign dout1 = sel[0] ? 'hx : sel[1] ? din : 'hx;

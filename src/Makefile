@@ -2,7 +2,7 @@
 TARGET = testbench
 SRCS = testbench.v
 
-VC = iverilog
+VC = iverilog -Wall
 
 $(TARGET): $(SRCS)
 	$(VC)	$^
